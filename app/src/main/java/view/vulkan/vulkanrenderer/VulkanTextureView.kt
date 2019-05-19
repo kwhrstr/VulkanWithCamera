@@ -1,11 +1,8 @@
 package view.vulkan.vulkanrenderer
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.SurfaceTexture
-import android.hardware.camera2.CameraManager
 import android.util.AttributeSet
-import android.util.Log
 import android.view.Surface
 import android.view.TextureView
 
@@ -16,15 +13,10 @@ class VulkanTextureView : TextureView {
     }
     private val tag = this::class.java.simpleName
     internal var mIsSleep = false
-    private var mFirstSurfaceChange = false
-    private lateinit var mCameraManager: CameraManager
-    private lateinit var mActivity: Activity
     private var mSurface: Surface? = null
-    private var mHasSurface = false
     private var mDetached = true
     private lateinit var mThread: VKThread
     var mRenderer: VulkanRenderer? = null
-    var mCleanup = false
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
@@ -39,17 +31,14 @@ class VulkanTextureView : TextureView {
             }
 
             override fun onSurfaceTextureDestroyed(surface: SurfaceTexture?): Boolean {
-                mHasSurface = false
                 mIsNeedInit = false
                 mThread.join()
                 return true
             }
 
             override fun onSurfaceTextureAvailable(surface: SurfaceTexture?, width: Int, height: Int) {
-                Log.i(tag, "created")
+                mIsNeedInit = true
                 mSurface = Surface(surface)
-                mHasSurface = true
-                mCleanup = true
                 mThread = VKThread()
                 mThread.start()
             }
@@ -91,34 +80,33 @@ class VulkanTextureView : TextureView {
                     sleep(10)
                     continue
                 }
-                if(!mHasSurface){
-                    break
-                }
                 if (mIsNeedInit) {
-                    mIsNeedInit = init(mSurface)
+                    mSurface?.let {
+                        init(it)
+                        mIsNeedInit = false
+                    }
                     continue
                 }
-                if (!mRenderer!!.drawFrame()) {
-                    reInit()
+
+                mRenderer?.let {
+                    if(!it.drawFrame()){
+                        reInit()
+                    }
                 }
             }
             cleanUp()
         }
 
-        private fun init(surface: Surface?): Boolean {
-            if (surface == null)
-                return true
+        private fun init(surface: Surface) {
             if (mRenderer == null){
-                Log.i(tag,"render is null")
                 mRenderer = VulkanRenderer(context)
             }
-            mRenderer!!.setSurface(mSurface!!)
-            mRenderer!!.initVulkan()
-            return false
+            mRenderer?.setSurface(surface)
+            mRenderer?.initVulkan()
         }
 
         private fun reInit(){
-            mRenderer!!.reInit()
+            mRenderer?.reInit()
         }
 
         private fun cleanUp() {
