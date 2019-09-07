@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
     }
     private val tag = this::class.java.simpleName
     private var mIsAskingPermissions = false
-    private lateinit var mVulkanTextureView: VulkanSurfaceView
+    private lateinit var mVulkanTextureView: VulkanTextureView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -69,18 +69,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-//        mVulkanTextureView.onResume()
+        mVulkanTextureView.onResume()
     }
 
     override fun onPause() {
         super.onPause()
         Log.i(tag, "activity pause")
-//        mVulkanTextureView.onPause()
+        mVulkanTextureView.onPause()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-//        mVulkanTextureView.onDestroy()
+        mVulkanTextureView.onDestroy()
     }
 
 }

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context="view.vulkan.vulkanrenderer.MainActivity">
 
-    <view.vulkan.vulkanrenderer.vulkanSurfaceView.VulkanSurfaceView
+    <view.vulkan.vulkanrenderer.VulkanTextureView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/VulkanView" />
